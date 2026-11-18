@@ -1,0 +1,5 @@
+﻿python: Python 3.14.7
+py: Python 3.14.7
+root: app, config, data, tests, .env.example, main.py, README.md, requirements.txt
+data: 
+venv: False
