@@ -96,7 +96,7 @@ Memory/State Updates
 ### Prerequisites
 
 - Python 3.11+
-- Groq API key
+- API key
 - Telegram bot token (from @BotFather)
 
 ### Installation
@@ -127,16 +127,32 @@ LLM_MODEL=gpt-4o-mini
 Any OpenAI-compatible endpoint works — OpenAI, Groq, OpenRouter, or a local
 Ollama/LM Studio server. Recommended models (good at casual, personality-
 driven chat, cheap enough to run all day):
+Any OpenAI-compatible endpoint works — OpenAI, Groq, OpenRouter,
+DeepSeek, Z.ai, MiniMax, or a local Ollama/LM Studio server.
 
-| Provider | Model | `LLM_BASE_URL` |
+Recommended models (prioritizing natural human-like conversations,
+personality consistency, casual texting, and roleplay):
+
+| Provider | Model | LLM_BASE_URL |
 |---|---|---|
-| OpenAI | `gpt-4o-mini` | `https://api.openai.com/v1` |
-| Groq | `llama-3.3-70b-versatile` | `https://api.groq.com/openai/v1` |
-| OpenRouter | `meta-llama/llama-3.3-70b-instruct` | `https://openrouter.ai/api/v1` |
-| Local (Ollama) | `qwen2.5:14b` | `http://127.0.0.1:11434/v1` |
+| Z.ai | glm-5.3-flash | https://api.z.ai/api/paas/v4/ |
+| DeepSeek | deepseek-v4.1-flash-20261017 | https://api.deepseek.com |
+| MiniMax | MiniMax-M3.1-Flash | https://api.minimax.io/v1 |
+| Groq | openai/gpt-oss-120b | https://api.groq.com/openai/v1 |
+| OpenRouter | deepseek/deepseek-v4.1-flash-20261017 | https://openrouter.ai/api/v1 |
+| OpenRouter | xiaomi/mimo-v2.6-flash | https://openrouter.ai/api/v1 |
+| OpenRouter | minimax/minimax-m3.1-flash | https://openrouter.ai/api/v1 |
 
-Larger models work but are rarely worth it for casual chat; sub-7B models
-tend to slip into assistant-speak, which the validator filters at a cost.
+Local models (Ollama / LM Studio):
+
+| RAM Budget | Model | LLM_BASE_URL |
+|---|---|---|
+| 2GB | qwen3.5:0.8b | http://127.0.0.1:11434/v1 |
+| 4GB | nemotron-mini:4b | http://127.0.0.1:11434/v1 |
+| 8GB | Roleplay-Llama-3-8B-GGUF (Q4_K_M) | http://127.0.0.1:1234/v1 |
+| 16GB | Rocinante-X-12B-v1-GGUF (Q6_K) | http://127.0.0.1:1234/v1 |
+
+Larger models work but are rarely worth it for casual chat.
 
 Optional configuration (see `.env.example` for all options):
 ```env
