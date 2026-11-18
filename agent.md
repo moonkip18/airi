@@ -34,9 +34,8 @@ app/
   database/            SQLAlchemy models, async session factory, SQLite migrations
   language/            Input language detection + output language policy (EN default,
                        rare deliberate Persian snippets)
-   llm/                 LLMProvider interface (base.py); RouterProvider (local
-                        9router, OpenAI-compatible) in router.py, exported as
-                        `llm_provider`
+   llm/                 LLMProvider interface (base.py); OpenAI-compatible
+                        provider in router.py, exported as `llm_provider`
   memory/              Embeddings (sentence-transformers w/ local fallback), memory store
                        & formation, semantic retrieval + reranking, maintenance (decay/
                        reinforcement/consolidation)
@@ -116,7 +115,7 @@ tools/                 rate_samples.py — curate training_samples (distillation
 ## Common pitfalls
 
 - README.md's "Groq" references are historical; the active provider is
-  **the local 9router (OpenAI-compatible gateway)** — see `app/llm/router.py` and `.env.example`.
+  **any OpenAI-compatible gateway** — see `app/llm/router.py` and `.env.example`.
 - `concurrent_updates(256)` + per-conversation locks in `bot.py`: bursts are processed
   concurrently but same-chat ordering is preserved. Don't serialize everything.
 - `nullpool` + async engine: sessions are per-task; don't share `AsyncSession`

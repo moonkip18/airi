@@ -24,7 +24,8 @@ class Settings(BaseSettings):
         alias="TELEGRAM_PROXY",
     )
 
-    # LLM gateway (OpenAI-compatible; the local 9router or any equivalent)
+    # LLM gateway (any OpenAI-compatible endpoint: OpenAI, Groq, OpenRouter,
+    # a local Ollama/LM Studio server, or a commercial gateway)
     llm_api_key: str = Field(
         default="",
         alias="LLM_API_KEY",
@@ -36,7 +37,7 @@ class Settings(BaseSettings):
     )
 
     llm_model: str = Field(
-        default="bai/glm-5.3-flash",
+        default="gpt-4o-mini",
         alias="LLM_MODEL",
     )
 

@@ -64,7 +64,7 @@ Shutdown order: background tasks → bot → database (last).
 | `app/config/` | `Settings` (pydantic-settings, `.env`), personality loader, structlog config |
 | `app/database/` | Models + `get_session()` + `db_write_lock` + startup migrations |
 | `app/language/` | Input detection, output policy (EN default; rare deliberate Persian snippets gated by emotion/relationship), per-user language stats |
-| `app/llm/` | `LLMProvider` ABC; `RouterProvider` (local 9router, OpenAI-compatible, `router.py`) as `llm_provider` |
+| `app/llm/` | `LLMProvider` ABC; OpenAI-compatible provider (`router.py`) as `llm_provider` |
 | `app/memory/` | Embeddings (MiniLM; local hashed fallback), store/formation, retrieval + reranking, maintenance |
 | `app/personality/` | Permanent traits from `config/personality.yaml` |
 | `app/social/` | Decision engine + scorer, attention scorer, response validator / anti-repetition, delayed action scheduler |
@@ -162,8 +162,7 @@ messages and busy chats add delay; capped by `MAX_RESPONSE_DELAY=8s`).
 ## 10. LLM layer
 
 - `LLMProvider` ABC: `generate`, `generate_structured` (Pydantic models), `close`
-- Active provider: `RouterProvider` (local 9router, OpenAI-compatible, `LLM_*`
-  settings); `LLM_DISABLE_THINKING=true` saves tokens/latency
+- Active provider: OpenAI-compatible (`LLM_*` settings); `LLM_DISABLE_THINKING=true` saves tokens/latency
 - Swap providers by implementing the ABC and re-exporting in `app/llm/__init__.py`
 
 ## 11. Telegram layer

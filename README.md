@@ -1,39 +1,56 @@
 # Persistent Human-Like Telegram AI Agent
 
-A sophisticated Telegram bot that behaves like a believable human participant in group conversations. Built with a persistent social agent architecture around an LLM (Groq), featuring long-term memory, relationships, emotional state, and natural social behavior.
+A sophisticated Telegram bot that behaves like a believable human participant in group conversations. Built with a persistent social agent architecture around an LLM, featuring long-term memory, relationships, emotional state, and natural social behavior.
 
-**Status**: 144 tests passing · eval harness included (`python -m tools.day_in_the_life`) · MIT
+**Status**: 144 tests passing · MIT
 
-## Demo: a scripted day, scored for realness
+## What's actually here (no fake demos)
 
-The repo ships a 12-scenario eval that puts the agent through a full day of
-group-chat situations (greetings, bait questions, spam pressure, moments that
-deserve silence) and scores every reply against a realness rubric:
+Most "human-like bot" repos show you a cherry-picked transcript. That proves
+nothing — you can't tell a scripted demo from a real one, and neither can I.
+So this repo proves its claims the boring way: **unit tests**.
 
-```text
-[PASS] morning hello            10/10
-       reply: "how's lol 504"
+What the 144 tests actually pin down:
 
-[PASS] memory callback          10/10
-       reply: 'come lol 196'
+- **When she talks and when she doesn't** — the participation scorer decides
+  to *ignore* most of what happens in a chat. Tests cover the attention
+  weights (direct mention > reply > ambient), conversation saturation, and
+  the "a closed exchange stays closed" rule that stops her from reopening a
+  dead conversation.
+- **What she never says** — a response validator blocks assistant-speak
+  ("I understand", "That sounds like", "Hope this helps"), agreement-fishing
+  ("right??", "am i right"), and restating the user's message before
+  answering. Tested phrase-by-phrase.
+- **Memory that behaves like memory** — episodic memories are formed from
+  conversations, retrieved by embedding similarity, decay, get superseded
+  when contradicted ("passed her exam" → "passed it again"), and *invented*
+  memories are rejected. All tested.
+- **Human timing** — reply delays are sampled, not instant; direct mentions
+  answer faster than ambient join-ins; there's a double-text window and a
+  late-typo-fix pass. All tested.
+- **Relationship state** — affection/trust/annoyance move per interaction and
+  decay over time; irritation at one person spamming accumulates and cools
+  off. All tested.
 
-[PASS] closed exchange          10/10   <- knew when to say nothing
+The **LLM is the only untested layer** — it's a pluggable OpenAI-compatible
+call (see the model table below), and the whole architecture is built around
+not trusting it: structured decisions are Pydantic-validated, prose replies
+go through the anti-assistant validator, and anything filtered just doesn't
+get sent.
 
-[PASS] spam pressure            10/10
-       reply: 'ANSWER lol 690'
-----------------------------------------------------------------
-realness score: 120/120  (100%)
-```
+## The eval harness
 
-(The replies above come from the deterministic harness mode — it exercises the
-full scoring pipeline with no LLM cost. Run `python -m tools.day_in_the_life
---live` to watch the real model answer each scenario.)
+`python -m tools.day_in_the_life` runs a scripted day (12 scenarios: bait
+questions, spam pressure, moments that deserve silence) through the real
+pipeline and scores replies on tone/length/freshness/memory rubrics. Without
+`--live` it's a free self-test of the scoring machinery (no LLM); with
+`--live` it exercises your configured model end-to-end. Treat it as a
+regression tool, not a badge.
 
-The same repo includes a **memory-browser dashboard** (FastAPI, localhost) for
-inspecting and editing what she remembers — see
-[`docs/demo-dashboard-api.json`](docs/demo-dashboard-api.json) for a captured
-API response and [`docs/demo-day-in-the-life.txt`](docs/demo-day-in-the-life.txt)
-for the full eval transcript.
+There's also a **memory-browser dashboard** (FastAPI, localhost) for
+inspecting and editing what she remembers —
+[`docs/demo-dashboard-api.json`](docs/demo-dashboard-api.json) shows a
+captured API response.
 
 ## Features
 
@@ -102,9 +119,24 @@ cp .env.example .env
 Required environment variables:
 ```env
 TELEGRAM_BOT_TOKEN=your_bot_token
-BAI_API_KEY=your_bai_api_key
-BAI_MODEL=glm-5.3-flash
+LLM_API_KEY=your_api_key
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_MODEL=gpt-4o-mini
 ```
+
+Any OpenAI-compatible endpoint works — OpenAI, Groq, OpenRouter, or a local
+Ollama/LM Studio server. Recommended models (good at casual, personality-
+driven chat, cheap enough to run all day):
+
+| Provider | Model | `LLM_BASE_URL` |
+|---|---|---|
+| OpenAI | `gpt-4o-mini` | `https://api.openai.com/v1` |
+| Groq | `llama-3.3-70b-versatile` | `https://api.groq.com/openai/v1` |
+| OpenRouter | `meta-llama/llama-3.3-70b-instruct` | `https://openrouter.ai/api/v1` |
+| Local (Ollama) | `qwen2.5:14b` | `http://127.0.0.1:11434/v1` |
+
+Larger models work but are rarely worth it for casual chat; sub-7B models
+tend to slip into assistant-speak, which the validator filters at a cost.
 
 Optional configuration (see `.env.example` for all options):
 ```env
